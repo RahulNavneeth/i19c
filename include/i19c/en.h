@@ -1,6 +1,6 @@
 #ifndef EN_H
 #define EN_H
 
-#define HELLO "Hello"
+#define HELLO "hello"
 
 #endif /* EN_H */

@@ -1,20 +1,25 @@
 CC = clang
 CFLAGS = -Wall -O3
-CFLAGS := -Iinclude
+CFLAGS := -Iinclude -I.i19c
 
 BIN = bin
 SRC = $(shell find . | grep "\.c")
 OBJ = $(patsubst %.c, $(BIN)/%.o, $(SRC))
+UTILS_HEADER = "./utils/headers.sh"
 
-.PHONY: all dirs clean build
+.PHONY: all dirs util clean build
 
-all: clean dirs build
+all: clean util dirs build
 
 clean:
 	rm -rf $(BIN)
 
 dirs:
 	mkdir $(BIN)
+
+util:
+	chmod +x $(UTILS_HEADER)
+	$(UTILS_HEADER) $(path)
 
 build: $(OBJ)
 	$(CC) -o $(BIN)/main $^
@@ -24,4 +29,4 @@ $(BIN)/%.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 run: all
-	$(BIN)/main
+	$(BIN)/main $(path)
