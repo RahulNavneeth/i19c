@@ -1,21 +1,21 @@
 CC = clang
-CFLAGS = -Wall -O3
-CFLAGS := -Iinclude -I.i19c
+CFLAGS = -Wall -O3 -Iinclude -I.i19c
 
 BIN = bin
-SRC = $(shell find . | grep "\.c")
+UTILS_HEADER = ./utils/headers.sh
+
+SRC = src/i19c.c
 OBJ = $(patsubst %.c, $(BIN)/%.o, $(SRC))
-UTILS_HEADER = "./utils/headers.sh"
 
-.PHONY: all dirs util clean build
+.PHONY: all dirs util clean build test run exec
 
-all: clean util dirs build
+all: clean util dirs build test
 
 clean:
 	rm -rf $(BIN)
 
 dirs:
-	mkdir $(BIN)
+	mkdir -p $(BIN)
 
 util:
 	chmod +x $(UTILS_HEADER)
@@ -24,12 +24,12 @@ util:
 build: $(OBJ)
 	ar rcs $(BIN)/libi19c.a $^
 
-exec: $(OBJ)
-	$(CC) -o $(BIN)/i19c $^
-
 $(BIN)/%.o: %.c 
 	mkdir -p $(dir $@)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-run:
-	$(BIN)/i19c $(path)
+test: clean dirs util
+	$(CC) -o $(BIN)/i19c_test src/i19c.c src/i19c_testing.c $(CFLAGS)
+
+run: test
+	$(BIN)/i19c_test $(path)
