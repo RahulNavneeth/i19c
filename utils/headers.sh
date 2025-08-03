@@ -23,9 +23,9 @@ for file in "$FILE_PATH"/*; do
     lang=$(basename "${file%.*}")
     echo "    if (strcmp(ctx->language, \"$lang\") == 0) {" >> "$I19C_HEADER_PATH"
     echo "        if (0) ;" >> "$I19C_HEADER_PATH"
-    for text in $(grep -oP '^#define\s+\K[A-Z_]+' "$file" | tail -n +2); do
-        echo "        else if (strcmp(text, \"$text\") == 0) return ${text}_$lang;" >> "$I19C_HEADER_PATH"
-    done
+	for text in $(grep '^#define' "$file" | sed -E 's/^#define[[:space:]]+([A-Z_]+).*/\1/' | tail -n +2); do
+	    echo "        else if (strcmp(text, \"$text\") == 0) return ${text}_$lang;" >> "$I19C_HEADER_PATH"
+	done
     echo "    }" >> "$I19C_HEADER_PATH"
 done
 echo -e "    return \"<missing>\";\n}" >> "$I19C_HEADER_PATH"
