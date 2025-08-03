@@ -8,7 +8,15 @@ rm -rf "$I19C_PATH"
 mkdir -p "$I19C_PATH/cache"
 touch "$I19C_HEADER_PATH"
 
-echo -e "#ifndef I19C_HEADER_H\n#define I19C_HEADER_H\n\n#include <string.h>\n" >> "$I19C_HEADER_PATH"
+cat<<EOF >> "$I19C_HEADER_PATH"
+#ifndef I19C_HEADER_H
+#define I19C_HEADER_H
+
+#include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+EOF
 
 for file in "$FILE_PATH"/*; do
 	sed -E "s/#define ([A-Za-z_][A-Za-z0-9_]*) +\"/#define \1_$(basename "${file%.*}") \"/" \
@@ -16,15 +24,63 @@ for file in "$FILE_PATH"/*; do
 	echo "#include \"cache/$(basename "$file")\"" >> "$I19C_HEADER_PATH"
 done
 
-echo -e "\ntypedef struct {\n    char *path;\n    char *language;\n} I19C ;\n" >> "$I19C_HEADER_PATH"
+cat<<EOF >> "$I19C_HEADER_PATH"
 
-echo -e "static inline char *T(I19C *ctx, const char *text) {" >> "$I19C_HEADER_PATH"
+typedef struct {
+    char *path;
+    char *language;
+} I19C ;
+
+static inline char *parse(const char *text, va_list arg) {
+	size_t cap = 128;
+	char *r_text = calloc(cap, 1);
+	size_t len = 0;
+
+	for (size_t i = 0; text[i]; i++) {
+		if (text[i] == '\\\' && text[i+1] == '@') {
+			if (len + 1 >= cap) {
+				cap *= 2;
+				r_text = realloc(r_text, cap);
+			}
+			r_text[len++] = '@';
+			i++; continue;
+		}
+		if (text[i] == '@') {
+			char *arg_s = va_arg(arg, char*);
+			size_t alen = strlen(arg_s);
+			if (len + alen >= cap) {
+				cap = (len + alen + 1) * 2;
+				r_text = realloc(r_text, cap);
+			}
+			strcpy(r_text + len, arg_s);
+			len += alen;
+			continue;
+		}
+		if (len + 1 >= cap) {
+			cap *= 2;
+			r_text = realloc(r_text, cap);
+		}
+		r_text[len++] = text[i];
+	}
+
+	r_text[len] = '\0';
+	return r_text;
+}
+
+EOF
+
+cat<<EOF >> "$I19C_HEADER_PATH"
+static inline char *T(I19C *ctx, const char *text, ...) {
+	va_list arg;
+	va_start (arg, text);
+
+EOF
 for file in "$FILE_PATH"/*; do
     lang=$(basename "${file%.*}")
     echo "    if (strcmp(ctx->language, \"$lang\") == 0) {" >> "$I19C_HEADER_PATH"
     echo "        if (0) ;" >> "$I19C_HEADER_PATH"
 	for text in $(grep '^#define' "$file" | sed -E 's/^#define[[:space:]]+([A-Z_]+).*/\1/' | tail -n +2); do
-	    echo "        else if (strcmp(text, \"$text\") == 0) return ${text}_$lang;" >> "$I19C_HEADER_PATH"
+		echo "        else if (strcmp(text, \"$text\") == 0) return parse (${text}_$lang, arg);" >> "$I19C_HEADER_PATH"
 	done
     echo "    }" >> "$I19C_HEADER_PATH"
 done

@@ -10,8 +10,8 @@ int32_t main (int argc, char **argv) {
 	I19C *ctx = get_i19c ();
 	set_path_i19c (ctx, argv[1]);
 
-	printf ("%s : %s\n", ctx->language, T (ctx, "HELLO"));
+	printf ("%s : %s\n", ctx->language, T (ctx, "HELLO", "Rahul M. Navneeth"));
 	set_lang_i19c (ctx, "tm");
-	printf ("%s : %s\n", ctx->language, T (ctx, "HELLO"));
+	printf ("%s : %s\n", ctx->language, T (ctx, "HELLO", "Rahul M. Navneeth"));
 	return 0;
 }
