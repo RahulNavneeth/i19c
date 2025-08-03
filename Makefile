@@ -22,11 +22,14 @@ util:
 	$(UTILS_HEADER) $(path)
 
 build: $(OBJ)
+	ar rcs $(BIN)/libi19c.a $^
+
+exec: $(OBJ)
 	$(CC) -o $(BIN)/i19c $^
 
 $(BIN)/%.o: %.c 
 	mkdir -p $(dir $@)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-run: all
+run:
 	$(BIN)/i19c $(path)
