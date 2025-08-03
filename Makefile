@@ -22,11 +22,11 @@ util:
 	$(UTILS_HEADER) $(path)
 
 build: $(OBJ)
-	$(CC) -o $(BIN)/main $^
+	$(CC) -o $(BIN)/i19c $^
 
 $(BIN)/%.o: %.c 
 	mkdir -p $(dir $@)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 run: all
-	$(BIN)/main $(path)
+	$(BIN)/i19c $(path)
