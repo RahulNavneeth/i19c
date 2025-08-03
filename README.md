@@ -24,7 +24,7 @@ LDFLAGS += -Llib/i19c/bin -li19c
 Then build i19c:
 
 ```bash
-cd lib/i19c && make all path=../../<path-to-your-i18n-folder>
+cd lib/i19c && make all path=../../<path-to-your-i19c-folder>
 ```
 
 Adjust the `path` as needed based on your project layout.
