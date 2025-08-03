@@ -9,7 +9,7 @@ OBJ = $(patsubst %.c, $(BIN)/%.o, $(SRC))
 
 .PHONY: all dirs util clean build test run exec
 
-all: clean util dirs build test
+all: clean util dirs build
 
 clean:
 	rm -rf $(BIN)
